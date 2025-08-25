@@ -16,16 +16,11 @@ interface Props {
 }
 
 function HandleTaskAction( { action } : Props) {
-    let params = useParams<{ id:string }>();
+    const params = useParams<{ id:string }>();
 
     const dispatch = useDispatch<any>();
     const authUser = useSelector((x:any) => x.auth.user);
     const singleTask = useSelector((x:any) => x.task.singleTask);
-
-    const formatDate = (date :any) => {
-          return moment(date).format("YYYY-MM-DD");
-    };
-
     const [taskDataToUpdate, setTaskDataToUpdate] = useState({
         id: 0, 
         title:'', 
@@ -34,8 +29,26 @@ function HandleTaskAction( { action } : Props) {
         isCompleted :false, 
         priority:0, 
         userId:authUser.id,
-        updatedFrom: 'page'
+        requestType: 'page'
     });
+    useEffect(() => {
+        if (params.id) {           
+            const id = Number(params.id);
+            if (id > 0) {                
+                dispatch(taskActions.GetTask(Number(id)));
+            }            
+        }
+    }, []);
+
+    useEffect(() => {
+        if (singleTask) {           
+            setTaskDataToUpdate({ ...singleTask, date: formatDate(singleTask.date) });  
+        }  
+    }, [singleTask]);
+
+    const formatDate = (date :any) => {
+          return moment(date).format("YYYY-MM-DD");
+    };
 
     const validationSchema = Yup.object().shape({
         id: Yup.number().required(),
@@ -45,52 +58,35 @@ function HandleTaskAction( { action } : Props) {
         isCompleted: Yup.bool().required('Is Completed is required'),
         priority: Yup.number().min(0).max(3).required('Priority is required'),
         userId: Yup.number().required(),       
-        updatedFrom: Yup.string().nullable()
+        requestType: Yup.string()
     });
     
-    const formOptions = { resolver: yupResolver(validationSchema) };
+    const formOptions : any= { resolver: yupResolver(validationSchema), values:taskDataToUpdate};
     
     const { register, handleSubmit, formState } = useForm(formOptions);
     const { errors, isSubmitting } = formState;
 
     const handleChange = (name: string) => (e: any) => {
-      switch (name) {
-        case "title":
-            setTaskDataToUpdate({ ...taskDataToUpdate, title: e.target.value });
-            break;
-        case "description":
-            setTaskDataToUpdate({ ...taskDataToUpdate, description: e.target.value });
-            break;
-        case "date":
-            setTaskDataToUpdate({ ...taskDataToUpdate, date: e.target.value });
-            break;
-        case "isCompleted":
-            setTaskDataToUpdate({ ...taskDataToUpdate, isCompleted: e.target.checked });
-            break;
-        case "priority":
-            setTaskDataToUpdate({ ...taskDataToUpdate, priority: e.target.value });
-            break;
-        default:
-          break;
-      }
-    };
-
-    useEffect(() => {
-        if (params.id) {           
-            const id = Number(params.id);
-            if (id > 0) {
-                setTaskDataToUpdate({ ...taskDataToUpdate, id: id });
-                dispatch(taskActions.GetTask(Number(id)));
-            }            
+        switch (name) {
+            case "title":
+                setTaskDataToUpdate({ ...taskDataToUpdate, title: e.target.value });
+                break;
+            case "description":
+                setTaskDataToUpdate({ ...taskDataToUpdate, description: e.target.value });
+                break;
+            case "date":
+                setTaskDataToUpdate({ ...taskDataToUpdate, date: e.target.value });
+                break;
+            case "isCompleted":
+                setTaskDataToUpdate({ ...taskDataToUpdate, isCompleted: e.target.checked });
+                break;
+            case "priority":
+                setTaskDataToUpdate({ ...taskDataToUpdate, priority: e.target.value });
+                break;
+            default:
+                break;
         }
-    }, []);
-
-    useEffect(() => {
-        if (singleTask) {           
-            setTaskDataToUpdate({ ...singleTask });  
-        }  
-    }, [singleTask]);
-
+    };
     function onSubmit (newData: any) { 
         if (action === 'create') {
             return dispatch(taskActions.InsertTask(newData));
@@ -112,9 +108,7 @@ function HandleTaskAction( { action } : Props) {
                     <label htmlFor="title">Title</label>
                     <input type="text" 
                         {...register('title')} 
-                        className={`input-control ${errors.title ? 'is-invalid' : ''}`} 
-                        value={taskDataToUpdate?.title.toLocaleLowerCase()} 
-                        onChange={handleChange("title")}   
+                        className={`input-control ${errors.title ? 'is-invalid' : ''}`}     
                     />
                     <div className="invalid-feedback">{errors.title?.message}</div>
             </div>
@@ -122,8 +116,6 @@ function HandleTaskAction( { action } : Props) {
                     <label htmlFor="description">Description</label>
                     <textarea {...register('description')} 
                         className={`input-control ${errors.description ? 'is-invalid' : ''}`} 
-                        value={taskDataToUpdate?.description}
-                        onChange={handleChange("description")}
                         rows={5}
                         />                    
                     <div className="invalid-feedback">{errors.description?.message}</div>
@@ -131,18 +123,18 @@ function HandleTaskAction( { action } : Props) {
             <div className="form-control">
                     <label htmlFor="date">Date</label>
                     <input type="date" {...register('date')} 
-                    className={`input-control ${errors.date ? 'is-invalid' : ''}`} 
-                    value={formatDate(taskDataToUpdate?.date)}
-                    onChange={handleChange("date")}
+                        className={`input-control ${errors.date ? 'is-invalid' : ''}`}
+                        value={formatDate(taskDataToUpdate?.date)}
+                        onChange={handleChange("date")}
                     />
                     <div className="invalid-feedback">{errors.date?.message}</div>
             </div>            
             <div className="form-control">
                     <label htmlFor="priority">Priority</label>
                     <select {...register('priority')} 
-                    className={`input-control ${errors.priority ? 'is-invalid' : ''}`} 
-                    value={taskDataToUpdate?.priority} 
-                    onChange={handleChange("priority")}
+                        className={`input-control ${errors.priority ? 'is-invalid' : ''}`} 
+                        value={taskDataToUpdate?.priority}
+                        onChange={handleChange("priority")}
                     >
                         <option value={0}>None</option>
                         <option value={1}>Low</option>
@@ -166,7 +158,7 @@ function HandleTaskAction( { action } : Props) {
             <div>   
                 <input  type="hidden" {...register('userId')} className={`input-control`} value={authUser.id} />                  
                 <input  type="hidden" {...register('id')} className={`input-control`} value={taskDataToUpdate.id} />                  
-                <input  type="hidden" {...register('updatedFrom')} className={`input-control`} value={taskDataToUpdate.updatedFrom} />                  
+                <input  type="hidden" {...register('requestType')} className={`input-control`} value={taskDataToUpdate.requestType} />                  
             </div>
 
             <button disabled={isSubmitting} className="submit-btn">

@@ -68,7 +68,8 @@ function TaskItem({ title, description, date, isCompleted, priority, userId, id 
                 description: description,
                 date: date,
                 priority:priority,
-                userId:userId
+                userId:userId,
+                requestType:'component'
               };
 
               updateTask(task);
@@ -87,7 +88,8 @@ function TaskItem({ title, description, date, isCompleted, priority, userId, id 
                 description: description,
                 date: date,
                 priority:priority,
-                userId:userId
+                userId:userId,
+                requestType:'component'
               };
 
               updateTask(task);

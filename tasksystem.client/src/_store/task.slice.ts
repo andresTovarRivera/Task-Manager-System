@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { fetchWrapper, history } from '../_helpers';
 import toast from "react-hot-toast";
-
 const name = 'task';
 const initialState = createInitialState();
 const reducers : any = () =>{ };
@@ -16,15 +15,16 @@ export const taskReducer = slice.reducer;
 
 function createInitialState() {
     return {
-        tasksData: [],
-        singleTask:null,
-        loading: false
+        userTasksNumber: -1,
+        singleTask: null,
+        loading: false, tasksData: [],
+        completedTasks: [],  
+        incompleteTasks: []
     }
 }
 
 function createExtraActions() {
-   const target = import.meta.env.VITE_APP_API_URL as string;
-
+    const target = import.meta.env.VITE_APP_API_URL as string;
     const baseUrl = `${target}/taskManager`;
 
     return {
@@ -59,7 +59,8 @@ function createExtraActions() {
     function UpdateTask() {
         return createAsyncThunk(
             `${name}/UpdateTask`,
-            async ({id, title, description, date, isCompleted, priority, userId, updatedFrom} :any) => {await fetchWrapper.put(baseUrl +'/UpdateTask', {id, title, description, date, isCompleted, priority, userId, updatedFrom})}
+            async ({id, title, description, date, isCompleted, priority, userId, requestType} :any) => await fetchWrapper.put(baseUrl +'/UpdateTask', {id, title, description, date, isCompleted, priority, userId,requestType})
+            
         );
     }
 
@@ -88,16 +89,29 @@ function createExtraReducers() {
                 .addCase(fulfilled, (state: any, action: any) => {
                     const response = action.payload;                   
                     
-                    if (response.errorCode !== 0 ) {
+                    if (response.errorCode !== 0) {
                         toast.error(response.errorMessage);
                         return;
                     }
                     
+                    const userTasksNumber = action.payload.data.length;
+
+                    if (userTasksNumber <= 0) {
+                        toast('No Tasks Found');  
+                    }else{
+                        toast('Tasks found: '+ userTasksNumber);       
+                    }
+
+                    state.userTasksNumber = userTasksNumber;
                     state.tasksData = action.payload.data;
+                    state.completedTasks = action.payload.data?.filter((t : any) => t.isCompleted === true);
+                    state.incompleteTasks = action.payload.data?.filter((t :any) => t.isCompleted === false);
                     state.singleTask = null;
+                    
                 })
-                .addCase(rejected, (action: any) => {
-                    toast.error(action.error);                           
+                .addCase(rejected, (state:any, action: any) => {
+                    toast.error(action.error.message);
+                    state.userTasksNumber = 0;
                 });
             } 
             
@@ -110,17 +124,18 @@ function createExtraReducers() {
                 .addCase(fulfilled, (state: any, action: any) => {
                     const response = action.payload;
                     
-
                     if (response.errorCode !== 0 ) {
+                        state.singleTask = null;
                         toast.error(response.errorMessage);
-                        return;
+                        history.navigate('/')
                     }
 
                     state.singleTask = action.payload.data;
                 })
                 .addCase(rejected, (state: any, action: any) => {
                     state.singleTask = null;
-                    toast.error(action.error);                       
+                    toast.error(action.error.message);
+                    history.navigate('/')                   
                 });
             }
 
@@ -167,16 +182,19 @@ function createExtraReducers() {
                     }
 
                     if(response.isSuccessful){
-                        if (action.meta.arg.updatedFrom === 'page') {
+                        if (action.meta.arg.requestType  === 'page') {
                             state.singleTask = null;
-                            toast.success('Task Created');
+                            toast.success('Task Updated');
                             history.navigate('/')
                         }
                         else{
                             const id = action.meta.arg.id;
                             const taskDataUpdated = action.meta.arg;
-                            const tasksDataUpdated = state.tasksData.map((t:any) => (t.id === id ? taskDataUpdated : t ))                       
+                            const tasksDataUpdated = state.tasksData.map((t:any) => (t.id === id ? taskDataUpdated : t ))  
+                            state.userTasksNumber  = tasksDataUpdated.length;                   
                             state.tasksData = tasksDataUpdated;
+                            state.completedTasks = tasksDataUpdated?.filter((t : any) => t.isCompleted === true);
+                            state.incompleteTasks = tasksDataUpdated?.filter((t :any) => t.isCompleted === false);
                         }                        
                     }                      
                 })
@@ -204,7 +222,10 @@ function createExtraReducers() {
                         const id = action.meta.arg;
                         const indexToRemove = state.tasksData.findIndex((c:any) => {return c.id == id;});
                         const tasksDataUpdated =  [...state.tasksData.slice(0, indexToRemove), ...state.tasksData.slice( indexToRemove + 1)];
+                        state.userTasksNumber  = tasksDataUpdated.length;   
                         state.tasksData = tasksDataUpdated;
+                        state.completedTasks = tasksDataUpdated?.filter((t : any) => t.isCompleted === true);
+                        state.incompleteTasks = tasksDataUpdated?.filter((t :any) => t.isCompleted === false);
                     }                      
                 })
                 .addCase(rejected, (action: any) => {

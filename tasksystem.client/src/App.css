@@ -1,9 +1,9 @@
 ﻿#root {
-    max-width: 1280px;
+    max-width: 80vw;
     margin: 0 auto;
     padding: 0 2rem;
     width: 100%;
-    display: flex;
+    /* display: flex; */
     justify-content: center;
 }
 
@@ -38,4 +38,13 @@
     border: 1px gray solid;
     border-radius: 5px;
     text-align: center;
+}
+
+.app-container{    
+    justify-content: center;
+    align-items: center;
+}
+
+.form-page{
+    display: flex;
 }

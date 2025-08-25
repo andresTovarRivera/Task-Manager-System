@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { taskActions, authActions } from '../_store';
+import { taskActions } from '../_store';
 import { history, PageStyled} from "../_helpers";
 import { TaskItem } from "../_components";
 export { Home };
@@ -9,50 +9,50 @@ export { Home };
 function Home() {
   const dispatch = useDispatch<any>();
   const authUser = useSelector(( x : any ) => x.auth.user);
+  const userTasksNumber = useSelector((x:any) => x.task.userTasksNumber);
   const tasksData = useSelector((x:any) => x.task.tasksData);
-   
+  const completedTasks = useSelector((x:any) => x.task.completedTasks);
+  const incompleteTasks = useSelector((x:any) => x.task.incompleteTasks);
+
   const [selectFilteredTasks, setSelectFilteredTasks] = useState('0');
-  const [filteredtasks, setFilterTasks] = useState([]);
-   
-  const completedTasks = tasksData?.filter((t : any) => t.isCompleted === true);
-  const incompleteTasks = tasksData?.filter((t :any) => t.isCompleted === false);
+  const [filteredtasks, setFilterTasks] = useState([]); 
+  
   const plus = <i className="fa-solid fa-plus"></i>
 
   if (!authUser) return null;
 
-  useEffect(() => {   
-      if (!authUser) {
+  useEffect(() => {    
+    dispatch(taskActions.GetAllTasksByUser()); 
+  }, []);
+
+  useEffect(() => {
+    if(userTasksNumber > 0){
+      switch(selectFilteredTasks) {
+        case '1': setFilterTasks(completedTasks);
+        break;
+        case '2': setFilterTasks(incompleteTasks);
+        break;
+        default: setFilterTasks(tasksData);
+      };
+    }  
+  }, [tasksData,selectFilteredTasks]);
+
+  useEffect(() => {
+    if (filteredtasks.length > 0) {
+      if(filteredtasks.every((t:any) => {t.userId !== authUser.id})){
         setFilterTasks([]);
-        dispatch(authActions.logout())
-      }
-    }, [authUser]);   
+        return;
+      }      
+    }   
+   }, [filteredtasks]);
 
-    useEffect(() => {
-      if(filteredtasks.length == 0){  
-        dispatch(taskActions.GetAllTasksByUser()); 
-      } 
-     
-      if(tasksData.length > 0){
-        switch(selectFilteredTasks) {
-            case '1':  setFilterTasks(completedTasks);
-            break;
-            case '2': setFilterTasks(incompleteTasks);
-            break;
-            default: setFilterTasks(tasksData);
-        };
-      }  
+   const createTask = () => {
+      history.navigate('/CreateTask')
+   };
 
-    }, [tasksData,selectFilteredTasks]);
-
-    const createTask = () => {
-        history.navigate('/CreateTask')
-    };
-
-    const filterTasks = useCallback((event: React.FormEvent<HTMLSelectElement>) => {
-      setSelectFilteredTasks(event?.currentTarget?.value);
-      
-      
-    }, [filteredtasks]);
+   const filterTasks = useCallback((event: React.FormEvent<HTMLSelectElement>) => {
+     setSelectFilteredTasks(event?.currentTarget?.value);
+   }, [filteredtasks]);
 
   return(<PageStyled>
         <div className='home-header'>

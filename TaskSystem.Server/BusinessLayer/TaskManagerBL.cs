@@ -25,8 +25,9 @@ public class TaskManagerBL(ITaskManagerContext taskManagerContext, IValidateData
         {
             return new GenericGetResponse<IEnumerable<TaskData>>()
             {
-                ErrorCode = 2,
-                ErrorMessage = "No user tasks"
+                Data = [],
+                ErrorCode = 0,
+                ErrorMessage = "No Tasks Found"
             };
         }
 

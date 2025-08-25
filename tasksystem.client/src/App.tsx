@@ -14,12 +14,12 @@ export { App };
 function App() {
     history.navigate = useNavigate();
     history.location = useLocation();
-
+    
     return (
-        <div className="app-container">
+        <div className={"app-container " + (history.location.pathname === '/' ? 'home' : 'form-page')}>
             <DivStyledProvider>
                 <Nav />
-                <Toaster />
+                <Toaster position="top-right" reverseOrder={true} />
                 <div className="container">
                 <Routes>
                     <Route path="/login" element={<Login />} />
