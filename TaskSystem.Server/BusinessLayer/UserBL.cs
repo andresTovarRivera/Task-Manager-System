@@ -27,8 +27,8 @@ public class UserBL(ITaskManagerContext taskManagerContext, IOptions<AppSettings
             };
         }
 
-        var user = await taskManagerContext.Users.SingleOrDefaultAsync(x => x.Name == request.UserName && x.Password == request.Password);
-                
+        var user = await taskManagerContext.Users.SingleOrDefaultAsync(x => string.Equals(x.Name, request.UserName) && string.Equals(x.Password, request.Password));
+
         if (user is null)
         {
             return new GenericGetResponse<AuthenticateResponse>()
@@ -37,7 +37,7 @@ public class UserBL(ITaskManagerContext taskManagerContext, IOptions<AppSettings
                 ErrorMessage = "Username or password is incorrect"
             };
         };
-               
+
         var token = generateJwtToken(user);
 
         return new GenericGetResponse<AuthenticateResponse>()
@@ -64,6 +64,16 @@ public class UserBL(ITaskManagerContext taskManagerContext, IOptions<AppSettings
             };
         }
 
+        if (taskManagerContext.Users.Any((u) => string.Equals(u.Name, newUser.Name)))
+        {
+            return new GenericResponse()
+            {
+                ErrorCode = 2,
+                ErrorMessage = "User Already Exist",
+                IsSuccessful = false
+            };
+        }
+
         taskManagerContext.Users.Add(newUser);
         int row = await taskManagerContext.SaveChangesAsync();
 
@@ -71,7 +81,7 @@ public class UserBL(ITaskManagerContext taskManagerContext, IOptions<AppSettings
         {
             return new GenericResponse()
             {
-                ErrorCode = 2,
+                ErrorCode = 3,
                 ErrorMessage = "Error creating User",
                 IsSuccessful = false
             };
@@ -85,10 +95,7 @@ public class UserBL(ITaskManagerContext taskManagerContext, IOptions<AppSettings
         };
     }
 
-    public User GetById(int id)
-    {
-        return taskManagerContext.Users.FirstOrDefault(x => x.Id == id);
-    }
+    public User GetById(int id) => taskManagerContext?.Users?.FirstOrDefault(x => x.Id == id);
 
     private string generateJwtToken(User user)
     {

@@ -26,7 +26,7 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    if(userTasksNumber > 0){
+    if(userTasksNumber >= 0){
       switch(selectFilteredTasks) {
         case '1': setFilterTasks(completedTasks);
         break;

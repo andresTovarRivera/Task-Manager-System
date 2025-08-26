@@ -128,7 +128,6 @@ input:checked + .slider:before {
 
 .slider.round {
   border-radius: 34px;
-  width: 4rem;
 }
 
 .slider.round:before {

@@ -41,7 +41,8 @@ function createReducers() {
 
 function createExtraActions() {
     
-    const target = import.meta.env.VITE_APP_API_URL as string;
+    // const target:string = import.meta.env.VITE_APP_API_URL;
+    const target:string = 'https://localhost:8080/api'
     const baseUrl = `${target}/user`;
 
     return {

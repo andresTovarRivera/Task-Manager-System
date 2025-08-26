@@ -18,6 +18,10 @@ interface Props {
 function HandleTaskAction( { action } : Props) {
     const params = useParams<{ id:string }>();
 
+    const formatDate = (date :any) => {
+          return moment(date).format("YYYY-MM-DD");
+    };
+
     const dispatch = useDispatch<any>();
     const authUser = useSelector((x:any) => x.auth.user);
     const singleTask = useSelector((x:any) => x.task.singleTask);
@@ -25,7 +29,7 @@ function HandleTaskAction( { action } : Props) {
         id: 0, 
         title:'', 
         description:'',
-        date: new Date(), 
+        date: formatDate(new Date().toUTCString()), 
         isCompleted :false, 
         priority:0, 
         userId:authUser.id,
@@ -41,14 +45,18 @@ function HandleTaskAction( { action } : Props) {
     }, []);
 
     useEffect(() => {
-        if (singleTask) {           
-            setTaskDataToUpdate({ ...singleTask, date: formatDate(singleTask.date) });  
+        if (singleTask) {                  
+            setTaskDataToUpdate({ ...taskDataToUpdate, title: singleTask.title });     
+            setTaskDataToUpdate({ ...taskDataToUpdate, 
+                id: singleTask.id,
+                title: singleTask.title,
+                description:singleTask.description,
+                date: formatDate(singleTask.date),
+                isCompleted:  singleTask.isCompleted, 
+                priority: singleTask.priority, 
+            });  
         }  
     }, [singleTask]);
-
-    const formatDate = (date :any) => {
-          return moment(date).format("YYYY-MM-DD");
-    };
 
     const validationSchema = Yup.object().shape({
         id: Yup.number().required(),
@@ -61,7 +69,7 @@ function HandleTaskAction( { action } : Props) {
         requestType: Yup.string()
     });
     
-    const formOptions : any= { resolver: yupResolver(validationSchema), values:taskDataToUpdate};
+    const formOptions : any= { resolver: yupResolver(validationSchema), values: taskDataToUpdate};
     
     const { register, handleSubmit, formState } = useForm(formOptions);
     const { errors, isSubmitting } = formState;
@@ -108,7 +116,9 @@ function HandleTaskAction( { action } : Props) {
                     <label htmlFor="title">Title</label>
                     <input type="text" 
                         {...register('title')} 
-                        className={`input-control ${errors.title ? 'is-invalid' : ''}`}     
+                        className={`input-control ${errors.title ? 'is-invalid' : ''}`}    
+                        value={taskDataToUpdate?.title}
+                        onChange={handleChange("title")}
                     />
                     <div className="invalid-feedback">{errors.title?.message}</div>
             </div>
@@ -117,6 +127,8 @@ function HandleTaskAction( { action } : Props) {
                     <textarea {...register('description')} 
                         className={`input-control ${errors.description ? 'is-invalid' : ''}`} 
                         rows={5}
+                        value={taskDataToUpdate?.description}
+                        onChange={handleChange("description")}
                         />                    
                     <div className="invalid-feedback">{errors.description?.message}</div>
             </div>
@@ -124,7 +136,7 @@ function HandleTaskAction( { action } : Props) {
                     <label htmlFor="date">Date</label>
                     <input type="date" {...register('date')} 
                         className={`input-control ${errors.date ? 'is-invalid' : ''}`}
-                        value={formatDate(taskDataToUpdate?.date)}
+                        value={taskDataToUpdate?.date}
                         onChange={handleChange("date")}
                     />
                     <div className="invalid-feedback">{errors.date?.message}</div>

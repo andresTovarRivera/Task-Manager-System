@@ -24,7 +24,8 @@ function request(method : any) {
 function authHeader(url:any) {
     const token = authToken();
     const isLoggedIn = !!token;
-    const uri = import.meta.env.VITE_APP_API_URL as string
+    // const target:string = import.meta.env.VITE_APP_API_URL;
+    const uri:string = 'https://localhost:8080/api'
     const isApiUrl = url.startsWith(uri);
     if (isLoggedIn && isApiUrl) {
         return { Authorization: `Bearer ${token}` };

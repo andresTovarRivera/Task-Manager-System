@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NSubstitute;
-using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Reflection.Metadata;
 using TaskSystem.Server.BusinessLayer;
 using TaskSystem.Server.BusinessLayer.Interfaces;
-using TaskSystem.Server.Data;
 using TaskSystem.Server.Data.Interfaces;
 using TaskSystem.Server.Models;
 
@@ -17,6 +13,8 @@ public sealed class TaskManagerBLTest
     private ITaskManagerBL _taskManagerBL;
     private IValidateDataBL _validateDataBL;
     private ITaskManagerContext _taskManagerContext;
+
+    private int _userId = 1;
 
     [TestInitialize]
     public void TestInitialize()
@@ -48,7 +46,7 @@ public sealed class TaskManagerBLTest
     [TestMethod]
     public async Task GetAllTasksByUser_success()
     {
-        var testresponse = await _taskManagerBL.GetAllTasksByUser(1);
+        var testresponse = await _taskManagerBL.GetAllTasksByUser(_userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(0, testresponse.ErrorCode);
@@ -72,8 +70,8 @@ public sealed class TaskManagerBLTest
         var testresponse = await _taskManagerBL.GetAllTasksByUser(2);
 
         Assert.IsNotNull(testresponse);
-        Assert.AreEqual(2, testresponse.ErrorCode);
-        Assert.AreEqual("No user tasks", testresponse.ErrorMessage);
+        Assert.AreEqual(0, testresponse.ErrorCode);
+        Assert.AreEqual("No Tasks Found", testresponse.ErrorMessage);
     }
 
     #endregion
@@ -83,7 +81,7 @@ public sealed class TaskManagerBLTest
     [TestMethod]
     public async Task GetTaskById_success()
     {
-        var testresponse = await _taskManagerBL.GetTaskById(1);
+        var testresponse = await _taskManagerBL.GetTaskById(1, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(0, testresponse.ErrorCode);
@@ -93,7 +91,7 @@ public sealed class TaskManagerBLTest
     [TestMethod]
     public async Task GetTaskById_zero_id_error()
     {
-        var testresponse = await _taskManagerBL.GetTaskById(0);
+        var testresponse = await _taskManagerBL.GetTaskById(0, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(1, testresponse.ErrorCode);
@@ -103,7 +101,7 @@ public sealed class TaskManagerBLTest
     [TestMethod]
     public async Task GetTaskById_task_null_error()
     {
-        var testresponse = await _taskManagerBL.GetTaskById(99);
+        var testresponse = await _taskManagerBL.GetTaskById(99, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(2, testresponse.ErrorCode);
@@ -119,7 +117,7 @@ public sealed class TaskManagerBLTest
     {
         _taskManagerContext.SaveChangesAsync().ReturnsForAnyArgs(1);
 
-        var testresponse = await _taskManagerBL.DeleteTask(1);
+        var testresponse = await _taskManagerBL.DeleteTask(1, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(0, testresponse.ErrorCode);
@@ -129,7 +127,7 @@ public sealed class TaskManagerBLTest
     [TestMethod]
     public async Task DeleteTask_zero_id_error()
     {
-        var testresponse = await _taskManagerBL.DeleteTask(0);
+        var testresponse = await _taskManagerBL.DeleteTask(0, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(1, testresponse.ErrorCode);
@@ -141,7 +139,7 @@ public sealed class TaskManagerBLTest
     {
         _taskManagerContext.SaveChangesAsync().ReturnsForAnyArgs(-1);
 
-        var testresponse = await _taskManagerBL.DeleteTask(1);
+        var testresponse = await _taskManagerBL.DeleteTask(1, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(2, testresponse.ErrorCode);
@@ -158,7 +156,7 @@ public sealed class TaskManagerBLTest
         _taskManagerContext.SaveChangesAsync().ReturnsForAnyArgs(1);
         TaskData newTaskData = new TaskData { Title = "new test ", Description = "D", UserId = 1, Priority = PriorityLevel.Low };
 
-        var testresponse = await _taskManagerBL.InsertTask(newTaskData);
+        var testresponse = await _taskManagerBL.InsertTask(newTaskData, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(0, testresponse.ErrorCode);
@@ -168,7 +166,7 @@ public sealed class TaskManagerBLTest
     [TestMethod]
     public async Task InsertTask_EmptyTask_error()
     {
-        var testresponse = await _taskManagerBL.InsertTask(null);
+        var testresponse = await _taskManagerBL.InsertTask(null, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(1, testresponse.ErrorCode);
@@ -181,23 +179,23 @@ public sealed class TaskManagerBLTest
         _taskManagerContext.SaveChangesAsync().ReturnsForAnyArgs(-1);
         TaskData newTaskData = new TaskData { Title = "new test ", Description = "D", UserId = 1, Priority = PriorityLevel.Low };
 
-        var testresponse = await _taskManagerBL.InsertTask(newTaskData);
+        var testresponse = await _taskManagerBL.InsertTask(newTaskData, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(2, testresponse.ErrorCode);
         Assert.AreEqual("Error inserting task", testresponse.ErrorMessage);
     }
     #endregion
-    
-    #region InsertTask
+
+    #region UpdateTask
 
     [TestMethod]
     public async Task UpdateTask_success()
     {
         _taskManagerContext.SaveChangesAsync().ReturnsForAnyArgs(1);
-        TaskData newTaskData = new TaskData { Id = 1,Title = "new test ", Description = "D", UserId = 1, Priority = PriorityLevel.Low };
+        TaskData newTaskData = new TaskData { Id = 1, Title = "new test ", Description = "D", UserId = 1, Priority = PriorityLevel.Low };
 
-        var testresponse = await _taskManagerBL.UpdateTask(newTaskData);
+        var testresponse = await _taskManagerBL.UpdateTask(newTaskData, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(0, testresponse.ErrorCode);
@@ -207,7 +205,9 @@ public sealed class TaskManagerBLTest
     [TestMethod]
     public async Task UpdateTask_EmptyTask_error()
     {
-        var testresponse = await _taskManagerBL.UpdateTask(null);
+        TaskData newTaskData = null;
+
+        var testresponse = await _taskManagerBL.UpdateTask(newTaskData, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(1, testresponse.ErrorCode);
@@ -220,7 +220,7 @@ public sealed class TaskManagerBLTest
         _taskManagerContext.SaveChangesAsync().ReturnsForAnyArgs(-1);
         TaskData newTaskData = new TaskData { Id = 1, Title = "new test ", Description = "D", UserId = 3, Priority = PriorityLevel.Low };
 
-        var testresponse = await _taskManagerBL.UpdateTask(newTaskData);
+        var testresponse = await _taskManagerBL.UpdateTask(newTaskData, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(3, testresponse.ErrorCode);
@@ -231,9 +231,9 @@ public sealed class TaskManagerBLTest
     public async Task UpdateTask_Task_null_error()
     {
         _taskManagerContext.SaveChangesAsync().ReturnsForAnyArgs(-1);
-        TaskData newTaskData = new TaskData {Id = 1, Title = "new test ", Description = "D", UserId = 1, Priority = PriorityLevel.Low };
+        TaskData newTaskData = new TaskData { Id = 1, Title = "new test ", Description = "D", UserId = 1, Priority = PriorityLevel.Low };
 
-        var testresponse = await _taskManagerBL.UpdateTask(newTaskData);
+        var testresponse = await _taskManagerBL.UpdateTask(newTaskData, _userId);
 
         Assert.IsNotNull(testresponse);
         Assert.AreEqual(4, testresponse.ErrorCode);
