@@ -4,6 +4,7 @@ import { history } from './_helpers';
 import { Nav, PrivateRoute, DivStyledProvider } from './_components';
 import { Home  } from "./Home";
 import { Login } from "./Login";
+import { Register } from "./Resgister"
 import { HandleTaskAction } from "./HandleTaskAction";
 
 import './App.css';
@@ -23,6 +24,7 @@ function App() {
                 <div className="container">
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route
                         path="/"
                         element={

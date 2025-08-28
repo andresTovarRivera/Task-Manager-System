@@ -52,10 +52,14 @@ function Login() {
                     <input type="password" {...register('password')} className={`input-control ${errors.password ? 'is-invalid' : ''}`} />
                     <div className="invalid-feedback">{errors.password?.message}</div>
                 </div>
-                <button disabled={isSubmitting} className="submit-btn">
+                <div className='login-button-section'>
+                    <button disabled={isSubmitting} className="submit-btn">
                     {isSubmitting && <span className="spinner-border spinner-border-sm mr-1"></span>}
-                    Login
-                </button>
+                        Login
+                    </button>
+                    <a href="/Register">Register</a>
+                </div>
+               
                 {authError && 
                     <div className="alert alert-danger mt-3 mb-0">{authError.message}</div>
                 }              
