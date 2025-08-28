@@ -40,6 +40,11 @@
     text-align: center;
 }
 
+.login-button-section{
+    display:flex;
+    justify-content: space-between;
+}
+
 .app-container{    
     justify-content: center;
     align-items: center;
