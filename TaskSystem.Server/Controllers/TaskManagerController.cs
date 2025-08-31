@@ -12,7 +12,7 @@ public class TaskManagerController(ILogger<TaskManagerController> log, ITaskMana
     [Authorize]
     public async Task<IActionResult> GetAllTasksByUser()
     {
-        AuthenticateResponse user = (AuthenticateResponse)Request?.HttpContext?.Items["User"];
+        AuthenticateResponse? user = Request?.HttpContext?.Items["User"] as AuthenticateResponse;
 
         if (user is null)
         {
@@ -26,7 +26,7 @@ public class TaskManagerController(ILogger<TaskManagerController> log, ITaskMana
     [Authorize]
     public async Task<IActionResult> GetTask(int id)
     {
-        AuthenticateResponse user = (AuthenticateResponse)Request?.HttpContext?.Items["User"];
+        AuthenticateResponse? user = Request?.HttpContext?.Items["User"] as AuthenticateResponse;
 
         if (user is null)
         {
@@ -39,7 +39,7 @@ public class TaskManagerController(ILogger<TaskManagerController> log, ITaskMana
     [Authorize]
     public async Task<IActionResult> InsertTask([FromBody] TaskData newTaskData)
     {
-        AuthenticateResponse user = (AuthenticateResponse)Request?.HttpContext?.Items["User"];
+        AuthenticateResponse? user = Request?.HttpContext?.Items["User"] as AuthenticateResponse;
 
         if (user is null)
         {
@@ -53,7 +53,7 @@ public class TaskManagerController(ILogger<TaskManagerController> log, ITaskMana
     [Authorize]
     public async Task<IActionResult> UpdateTask([FromBody] TaskData updateTaskData)
     {
-        AuthenticateResponse user = (AuthenticateResponse)Request?.HttpContext?.Items["User"];
+        AuthenticateResponse? user = Request?.HttpContext?.Items["User"] as AuthenticateResponse;
 
         if (user is null)
         {
@@ -67,7 +67,7 @@ public class TaskManagerController(ILogger<TaskManagerController> log, ITaskMana
     [Authorize]
     public async Task<IActionResult> DeleteTask(int id)
     {
-        AuthenticateResponse user = (AuthenticateResponse)Request?.HttpContext?.Items["User"];
+        AuthenticateResponse? user = Request?.HttpContext?.Items["User"] as AuthenticateResponse;
         
         if (user is null)
         {
