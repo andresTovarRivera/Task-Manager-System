@@ -35,7 +35,7 @@ public class TaskManagerBL(ITaskManagerContext taskManagerContext, IValidateData
         {
             ErrorCode = 0,
             ErrorMessage = "",
-            Data = tasks
+            Data = tasks.OrderBy(t => t.Order)
         };
     }
 
@@ -82,6 +82,16 @@ public class TaskManagerBL(ITaskManagerContext taskManagerContext, IValidateData
         }
 
         newTaskData.UserId = userID;
+
+        IEnumerable<TaskData> tasks = taskManagerContext.Tasks.Where(t => t.UserId == userID);
+        int? lastOrderIndex = tasks.MaxBy(t => t.Order)?.Order;
+
+        if (!lastOrderIndex.HasValue)
+        {
+            lastOrderIndex = 0;
+        }
+
+        newTaskData.Order = (int)lastOrderIndex + 1;
 
         taskManagerContext.Tasks.Add(newTaskData);
         int row = await taskManagerContext.SaveChangesAsync();
@@ -158,7 +168,7 @@ public class TaskManagerBL(ITaskManagerContext taskManagerContext, IValidateData
     }
 
     public async Task<_BaseModel> DeleteTask(int taskId, int userId)
-    {        
+    {
         var taskData = await taskManagerContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
 
         if (taskData is null)

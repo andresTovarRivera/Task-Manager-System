@@ -41,22 +41,33 @@ export const DivStyled = styled.div`
     margin-bottom:2px;
   }
   
-  .priority-icon{
+  .task-drag-icon{
     font-size:x-large;
+    margin:0;
+    cursor:grab;
+  }
+
+  .priority-icon{
+    display: contents;
+    font-size:math;
     margin:0;
    
   }
 
-  .high{
-   color: ${() => theme.colorDanger};
+  .priority-icon.high{
+    color: ${() => theme.colorDanger};
   }
 
-  .medium{
-   color: ${() => theme.colorYellow};
+  .priority-icon.medium{
+    color: ${() => theme.colorYellow};
   }
 
-  .low{
-   color: ${() => theme.colorGreenLight};
+  .priority-icon.low{
+    color: ${() => theme.colorGreenLight};
+  }
+
+  .priority-icon.none{
+    display:none;
   }
 
   .task-footer {
