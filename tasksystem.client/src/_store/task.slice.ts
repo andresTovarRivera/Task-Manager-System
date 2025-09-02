@@ -61,7 +61,7 @@ function createExtraActions() {
     function UpdateTask() {
         return createAsyncThunk(
             `${name}/UpdateTask`,
-            async ({id, title, description, date, isCompleted, priority, userId, requestType} :any) => await fetchWrapper.put(baseUrl +'/UpdateTask', {id, title, description, date, isCompleted, priority, userId,requestType})
+            async ({id, title, description, date, isCompleted, priority, order, userId, requestType} :any) => await fetchWrapper.put(baseUrl +'/UpdateTask', {id, title, description, date, isCompleted, priority, order, userId,requestType})
             
         );
     }

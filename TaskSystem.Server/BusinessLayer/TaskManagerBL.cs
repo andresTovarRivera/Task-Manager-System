@@ -210,6 +210,7 @@ public class TaskManagerBL(ITaskManagerContext taskManagerContext, IValidateData
         currentTaskData.IsCompleted = newTaskData.IsCompleted;
         currentTaskData.Priority = newTaskData.Priority;
         currentTaskData.UpdatedDate = DateTime.Now;
+        currentTaskData.Order = newTaskData.Order;
 
         return currentTaskData;
     }
