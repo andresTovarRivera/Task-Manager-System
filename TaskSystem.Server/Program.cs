@@ -79,13 +79,13 @@ using (var scope = app.Services.CreateScope())
     if (!context.Tasks.Any())
     {
         context.Tasks.AddRange(
-            new TaskData { Title = "Demo task", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.Low, UserId = 1 },
-            new TaskData { Title = "Demo task 2", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = true, Priority = PriorityLevel.None, UserId = 1 },
-            new TaskData { Title = "Demo task 3", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.High, UserId = 1 },
-            new TaskData { Title = "Demo task 4", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = true, Priority = PriorityLevel.Medium, UserId = 1 },
-            new TaskData { Title = "Demo task", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.High, UserId = 2 },
-            new TaskData { Title = "Demo task 2", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.Low, UserId = 2 },
-            new TaskData { Title = "Demo task", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.Low, UserId = 3 }
+            new TaskData { Title = "Demo task", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.Low, UserId = 1, Order = 1 },
+            new TaskData { Title = "Demo task 2", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = true, Priority = PriorityLevel.None, UserId = 1, Order = 2 },
+            new TaskData { Title = "Demo task 3", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.High, UserId = 1, Order = 4 },
+            new TaskData { Title = "Demo task 4", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = true, Priority = PriorityLevel.Medium, UserId = 1, Order = 3 },
+            new TaskData { Title = "Demo task", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.High, UserId = 2, Order = 1 },
+            new TaskData { Title = "Demo task 2", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.Low, UserId = 2, Order = 2 },
+            new TaskData { Title = "Demo task", Description = "This is a demo task", Date = DateTime.Now, IsCompleted = false, Priority = PriorityLevel.Low, UserId = 3, Order = 1 }
             );
 
         await context.SaveChangesAsync();

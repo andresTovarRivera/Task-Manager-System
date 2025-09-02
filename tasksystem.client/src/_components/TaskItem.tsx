@@ -1,8 +1,9 @@
 import { useDispatch } from 'react-redux';
-
 import { taskActions } from '../_store';
 import moment from "moment/moment";
 import { DivStyled, history } from "../_helpers";
+import { CSS } from "@dnd-kit/utilities";
+import { useSortable } from '@dnd-kit/sortable';
 
 interface Props {
   title: string;
@@ -12,47 +13,56 @@ interface Props {
   priority: number;
   userId: number;
   id: number;
+  order: number;
 }
 export { TaskItem };
 
-function TaskItem({ title, description, date, isCompleted, priority, userId, id }: Props) {
+function TaskItem({ title, description, date, isCompleted, priority, userId, id, order }: Props) {
 
-    const dispatch = useDispatch<any>();
-      
-    const edit = <i className="fa-solid fa-pen"></i>;
-    const trash = <i className="fa fa-trash"></i>;
-    const exclamation = <i className="fa-solid fa-triangle-exclamation"></i>
+  const dispatch = useDispatch<any>();
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: order });
 
-    const PriorityStatus= (priority:number)  => {
-        switch(priority) {
-            case 1: return 'low';
-            case 2: return 'medium';
-            case 3: return 'high';
-            default: return 'none';
-        };
-    }
+  const style = {
+    transition,
+    transform: CSS.Transform.toString(transform),
+  };
+  
+  const edit = <i className="fa-solid fa-pen"></i>;
+  const trash = <i className="fa fa-trash"></i>;
+  const exclamation = <i className="fa-solid fa-triangle-exclamation"></i>
+  const dragicon = <i className="fa-solid fa-grip-vertical"></i>
 
-    const formatDate = (date :any) => {
-      return moment(date).format("DD/MM/YYYY");
+  const PriorityStatus= (priority:number)  => {
+    switch(priority) {
+      case 1: return 'low';
+      case 2: return 'medium';
+      case 3: return 'high';
+      default: return 'none';
     };
+  }
 
-    const deleteTask = async (id : number) => {
-        return dispatch(taskActions.DeleteTask(id));
-    };
+  const formatDate = (date :any) => {
+    return moment(date).format("DD/MM/YYYY");
+  };
 
-    const editTask = async (id : number) => {
-         history.navigate('/updatetask/' + id )
-    };
+  const deleteTask = async (id : number) => {
+    return dispatch(taskActions.DeleteTask(id));
+  };
 
-    const updateTask = async (task : Props) => {
-        return dispatch(taskActions.UpdateTask(task));
-    };
+  const editTask = async (id : number) => {
+    history.navigate('/updatetask/' + id )
+  };
+
+  const updateTask = async (task : Props) => {
+    return dispatch(taskActions.UpdateTask(task));
+  };
 
   return (
-    <DivStyled>
+    <DivStyled  ref={setNodeRef}
+      style={style}>
         <div className="task-header">
-            <h1 className='task-title'>{title}</h1>
-            <p className={'priority-icon ' + PriorityStatus(priority)}>{exclamation}</p>
+            <h1 className='task-title'><p className={'priority-icon ' + PriorityStatus(priority)}>{exclamation}</p> {title}</h1>
+            <p className='task-drag-icon' {...attributes} {...listeners}>{dragicon}</p>           
         </div>
         <p className='task-description'>{description}</p>
         <p className="date">{formatDate(date)}</p>
@@ -69,7 +79,8 @@ function TaskItem({ title, description, date, isCompleted, priority, userId, id 
                 date: date,
                 priority:priority,
                 userId:userId,
-                requestType:'component'
+                requestType:'component',
+                order:order
               };
 
               updateTask(task);
@@ -89,7 +100,8 @@ function TaskItem({ title, description, date, isCompleted, priority, userId, id 
                 date: date,
                 priority:priority,
                 userId:userId,
-                requestType:'component'
+                requestType:'component',
+                order:order
               };
 
               updateTask(task);
