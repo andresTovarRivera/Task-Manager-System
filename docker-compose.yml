@@ -1,5 +1,8 @@
 services:
   tasksystemserver:
+    build:
+        context: .
+        dockerfile: TaskSystem.Server/Dockerfile
     image: tasksystemserver:dev
     ports:
      - "8080:8080"
@@ -8,9 +11,15 @@ services:
      - sqlserver
     environment:
      - ASPNETCORE_ENVIRONMENT=Development
+     #- ASPNETCORE_HTTP_PORTS=3000
+     #- ASPNETCORE_HTTPS_PORTS=3001
+     #- ASPNETCORE_Kestrel__Certificates__Default__Passwrod=123
+     #- ASPNETCORE_Kestrel__Certificates__Default__Paath=/https/tasksystem.pfx
     networks:
      - taskmanagernetwork
     restart: on-failure
+    #volumes:
+    #    - "~/.aspnet/https:/htpps:ro" 
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest

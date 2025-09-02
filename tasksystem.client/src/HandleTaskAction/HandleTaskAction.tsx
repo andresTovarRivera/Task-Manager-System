@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
@@ -18,24 +18,20 @@ interface Props {
 function HandleTaskAction( { action } : Props) {
     const params = useParams<{ id:string }>();
 
-    const formatDate = (date :any) => {
+    const formatDate = (date : string) => {
           return moment(date).format("YYYY-MM-DD");
     };
 
     const dispatch = useDispatch<any>();
     const authUser = useSelector((x:any) => x.auth.user);
     const singleTask = useSelector((x:any) => x.task.singleTask);
-    const [taskDataToUpdate, setTaskDataToUpdate] = useState({
-        id: 0, 
-        title:'', 
-        description:'',
-        date: formatDate(new Date().toUTCString()), 
-        isCompleted :false, 
-        priority:0, 
-        userId:authUser.id,
-        requestType: 'page'
-    });
+
     useEffect(() => {
+        setValue("userId", authUser.id);
+        setValue("id", 0); 
+        setValue("requestType", 'page'); 
+        setValue("date", formatDate(new Date().toUTCString()));
+
         if (params.id) {           
             const id = Number(params.id);
             if (id > 0) {                
@@ -45,16 +41,13 @@ function HandleTaskAction( { action } : Props) {
     }, []);
 
     useEffect(() => {
-        if (singleTask) {                  
-            setTaskDataToUpdate({ ...taskDataToUpdate, title: singleTask.title });     
-            setTaskDataToUpdate({ ...taskDataToUpdate, 
-                id: singleTask.id,
-                title: singleTask.title,
-                description:singleTask.description,
-                date: formatDate(singleTask.date),
-                isCompleted:  singleTask.isCompleted, 
-                priority: singleTask.priority, 
-            });  
+        if (singleTask) {
+            setValue("id", singleTask.id);     
+            setValue("title", singleTask.title);     
+            setValue("description", singleTask.description);     
+            setValue("date", formatDate(singleTask.date));     
+            setValue("isCompleted", singleTask.isCompleted);     
+            setValue("priority", singleTask.priority);   
         }  
     }, [singleTask]);
 
@@ -62,39 +55,18 @@ function HandleTaskAction( { action } : Props) {
         id: Yup.number().required(),
         title: Yup.string().required('Title is required'),
         description: Yup.string().nullable(),
-        date: Yup.date().nullable(),
+        date: Yup.string().nullable(),
         isCompleted: Yup.bool().required('Is Completed is required'),
         priority: Yup.number().min(0).max(3).required('Priority is required'),
         userId: Yup.number().required(),       
         requestType: Yup.string()
     });
     
-    const formOptions : any= { resolver: yupResolver(validationSchema), values: taskDataToUpdate};
+    const formOptions = { resolver: yupResolver(validationSchema)};
     
-    const { register, handleSubmit, formState } = useForm(formOptions);
+    const { register, setValue, handleSubmit, formState } = useForm(formOptions);
     const { errors, isSubmitting } = formState;
 
-    const handleChange = (name: string) => (e: any) => {
-        switch (name) {
-            case "title":
-                setTaskDataToUpdate({ ...taskDataToUpdate, title: e.target.value });
-                break;
-            case "description":
-                setTaskDataToUpdate({ ...taskDataToUpdate, description: e.target.value });
-                break;
-            case "date":
-                setTaskDataToUpdate({ ...taskDataToUpdate, date: e.target.value });
-                break;
-            case "isCompleted":
-                setTaskDataToUpdate({ ...taskDataToUpdate, isCompleted: e.target.checked });
-                break;
-            case "priority":
-                setTaskDataToUpdate({ ...taskDataToUpdate, priority: e.target.value });
-                break;
-            default:
-                break;
-        }
-    };
     function onSubmit (newData: any) { 
         if (action === 'create') {
             return dispatch(taskActions.InsertTask(newData));
@@ -117,51 +89,41 @@ function HandleTaskAction( { action } : Props) {
                     <input type="text" 
                         {...register('title')} 
                         className={`input-control ${errors.title ? 'is-invalid' : ''}`}    
-                        value={taskDataToUpdate?.title}
-                        onChange={handleChange("title")}
                     />
-                    <div className="invalid-feedback">{errors.title?.message}</div>
+                     <div className="invalid-feedback">{errors.title?.message}</div> 
             </div>
             <div className="form-control">                   
                     <label htmlFor="description">Description</label>
                     <textarea {...register('description')} 
                         className={`input-control ${errors.description ? 'is-invalid' : ''}`} 
                         rows={5}
-                        value={taskDataToUpdate?.description}
-                        onChange={handleChange("description")}
                         />                    
-                    <div className="invalid-feedback">{errors.description?.message}</div>
+                     <div className="invalid-feedback">{errors.description?.message}</div> 
             </div>
             <div className="form-control">
                     <label htmlFor="date">Date</label>
                     <input type="date" {...register('date')} 
                         className={`input-control ${errors.date ? 'is-invalid' : ''}`}
-                        value={taskDataToUpdate?.date}
-                        onChange={handleChange("date")}
                     />
-                    <div className="invalid-feedback">{errors.date?.message}</div>
+                     <div className="invalid-feedback">{errors.date?.message}</div> 
             </div>            
             <div className="form-control">
                     <label htmlFor="priority">Priority</label>
                     <select {...register('priority')} 
                         className={`input-control ${errors.priority ? 'is-invalid' : ''}`} 
-                        value={taskDataToUpdate?.priority}
-                        onChange={handleChange("priority")}
                     >
                         <option value={0}>None</option>
                         <option value={1}>Low</option>
                         <option value={2}>Medium</option>
                         <option value={3}>High</option>
                     </select>
-                    <div className="invalid-feedback">{errors.priority?.message}</div>
+                     <div className="invalid-feedback">{errors.priority?.message}</div> 
             </div>
             <div className="form-control">
                 <label htmlFor="isCompleted">Is Completed</label>
                 <label className='switch'>
                     <input type="checkbox"
                     {...register('isCompleted')} 
-                    checked = {taskDataToUpdate?.isCompleted} 
-                    onChange= {handleChange("isCompleted")}
                     />
                     <span className="slider round"></span>                                       
                 </label>
@@ -169,8 +131,8 @@ function HandleTaskAction( { action } : Props) {
             
             <div>   
                 <input  type="hidden" {...register('userId')} className={`input-control`} value={authUser.id} />                  
-                <input  type="hidden" {...register('id')} className={`input-control`} value={taskDataToUpdate.id} />                  
-                <input  type="hidden" {...register('requestType')} className={`input-control`} value={taskDataToUpdate.requestType} />                  
+                <input  type="hidden" {...register('id')} className={`input-control`} />                  
+                <input  type="hidden" {...register('requestType')} className={`input-control`} />                  
             </div>
 
             <button disabled={isSubmitting} className="submit-btn">
