@@ -20,13 +20,10 @@ Allows users to create, view, update, and delete tasks. The system will provide 
 - Swagger = https://localhost:8080/swagger/index.html
 
 >[!WARNING]
-> ## Run with docker JUST BACKEND (on development)
-> 1- Open a terminal in the project folder \TaskSystem.Server
+> ## Run with docker (http)
+> 1- Open a terminal in the project folder
 >
 > 2- Go to docker desktop and delete running containers
->
-> 3-Run command to create image of the project
-> docker build -t tasksystemserver:dev .
 >
 > 3- Run docker compose
 > docker-compose up --build
@@ -34,8 +31,7 @@ Allows users to create, view, update, and delete tasks. The system will provide 
 > 4- verify that the new container is running
 >
 > 5- Open in a Browser 
-> https://localhost:8080/swagger/index.html
-> https://localhost:52093/
+> http://localhost:8080/swagger/index.html
 
 - To create the images manually
 Pull SQL server image wiht the next command
@@ -50,7 +46,7 @@ Pull SQL server image wiht the next command
 The first landing page is login
 
 <p align="center">
-<img width="761" height="537" alt="image" src="https://github.com/user-attachments/assets/20ed6657-42e0-4e24-937e-09e34491e90d" />
+<img width="270" height="388" alt="image" src="https://github.com/user-attachments/assets/24efb2b3-c435-49bf-bbd3-20f9b3b75140" />
 </p>
 
 By default there are 3 users created
@@ -66,10 +62,12 @@ By default there are 3 users created
 If you login with admin user, you will see the home page with 4 demo task
 
 <p align="center">
-<img width="1466" height="857" alt="image" src="https://github.com/user-attachments/assets/74538b19-2b4e-4340-9130-a7be5c20a1db" />
+<img width="1468" height="712" alt="image" src="https://github.com/user-attachments/assets/61a5880d-84ed-4e4a-8e69-5d2e742ffa5f" />
 </p>
 
-you can add, update and delete tasks, also filter by status (completed or incomplete)
+you can add, update and delete tasks, also filter by status (completed or incomplete).
+
+Also you can drag and drop using the right top dots icon.
 
 If you press add new task or the botton "+" in the top right, you will be redirect to create task page.(saem flow for update task)
 
@@ -106,7 +104,10 @@ Press Authorize and close the modal.
 
 Now you can use all task methods.
 
-> **Note:** in case of default user are not availables,  you can create users with the method User/createUser
+> **Note:** in case of default users are not available,  you can create users with the register botton or using method User/createUser in swagger
+<p align="center">
+<img width="288" height="421" alt="image" src="https://github.com/user-attachments/assets/09a1faf4-9b48-4465-a074-2847eb11c075" />
+</p>
 
 
  
