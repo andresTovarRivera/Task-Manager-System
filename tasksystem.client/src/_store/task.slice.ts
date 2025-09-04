@@ -34,6 +34,8 @@ function createExtraActions() {
         GetTask:GetTask(),
         InsertTask: InsertTask(),
         UpdateTask:UpdateTask(),
+        UpdateTaskStatus:UpdateTaskStatus(),
+        UpdateTaskOrder:UpdateTaskOrder(),        
         DeleteTask:DeleteTask()
     };    
 
@@ -66,6 +68,22 @@ function createExtraActions() {
         );
     }
 
+    function UpdateTaskStatus() {
+        return createAsyncThunk(
+            `${name}/UpdateTaskStatus`,
+            async ({taskId, isCompleted} :any) => await fetchWrapper.put(baseUrl +'/UpdateTaskStatus', {taskId, isCompleted})
+            
+        );
+    }
+
+    function UpdateTaskOrder() {
+        return createAsyncThunk(
+            `${name}/UpdateTaskOrder`,
+            async ({taskId, oldOrder, newOrder} :any) => await fetchWrapper.put(baseUrl +'/UpdateTaskOrder', {taskId, oldOrder, newOrder})
+            
+        );
+    }
+
     function DeleteTask() {
         return createAsyncThunk(
             `${name}/DeleteTask`,
@@ -80,6 +98,8 @@ function createExtraReducers() {
             GetTask();
             InsertTask();
             UpdateTask();
+            UpdateTaskStatus();
+            UpdateTaskOrder();
             DeleteTask();
 
             function GetAllTasksByUser() {
@@ -204,6 +224,61 @@ function createExtraReducers() {
                     toast.error(action.error.message);                  
                 });
             }
+
+            function UpdateTaskStatus(){
+                var { pending, fulfilled, rejected} = extraActions.UpdateTaskStatus;
+                builder
+                .addCase(pending, (state: any) => {
+                    state.loading = true ;
+                    
+                })
+                .addCase(fulfilled, (state: any, action: any) => {
+                    const response = action.payload;
+                    
+                    if (response.errorCode !== 0 ) {
+                        toast.error(response.errorMessage);
+                        return;
+                    }
+
+                    if(response.isSuccessful){
+                        const id = action.meta.arg.taskId;
+                        const taskStatusDataUpdated = action.meta.arg;
+                        const tasksDataUpdated = state.tasksData.map((t:any) => (t.id === id ?  {...t, isCompleted : taskStatusDataUpdated.isCompleted} : t  ))  
+                        state.userTasksNumber  = tasksDataUpdated.length;                   
+                        state.tasksData = tasksDataUpdated;
+                        state.completedTasks = tasksDataUpdated?.filter((t : any) => t.isCompleted === true);
+                        state.incompleteTasks = tasksDataUpdated?.filter((t :any) => t.isCompleted === false);                                                
+                    }                      
+                })
+                .addCase(rejected, (action: any) => {
+                    toast.error(action.error.message);                  
+                });
+            }
+            
+            function UpdateTaskOrder(){
+                var { pending, fulfilled, rejected} = extraActions.UpdateTaskOrder;
+                builder
+                .addCase(pending, (state: any) => {
+                    state.loading = true ;
+                    
+                })
+                .addCase(fulfilled, (state: any, action: any) => {
+                    const response = action.payload;
+                    
+                    if (response.errorCode !== 0 ) {
+                        toast.error(response.errorMessage);
+                        return;
+                    }
+
+                    if(response.isSuccessful){
+                                                                 
+                    }                      
+                })
+                .addCase(rejected, (action: any) => {
+                    toast.error(action.error.message);                  
+                });
+            }
+
 
             function DeleteTask(){
                 var { pending, fulfilled, rejected} = extraActions.DeleteTask;

@@ -11,13 +11,12 @@ interface Props {
   date: string;
   isCompleted: boolean;
   priority: number;
-  userId: number;
   id: number;
   order: number;
 }
 export { TaskItem };
 
-function TaskItem({ title, description, date, isCompleted, priority, userId, id, order }: Props) {
+function TaskItem({ title, description, date, isCompleted, priority, id, order }: Props) {
 
   const dispatch = useDispatch<any>();
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: order });
@@ -53,8 +52,8 @@ function TaskItem({ title, description, date, isCompleted, priority, userId, id,
     history.navigate('/updatetask/' + id )
   };
 
-  const updateTask = async (task : Props) => {
-    return dispatch(taskActions.UpdateTask(task));
+  const updateTaskStatus = async (id : number, isCompleted: boolean) => {
+    return dispatch(taskActions.UpdateTaskStatus({taskId: id, isCompleted}));
   };
 
   return (
@@ -67,49 +66,12 @@ function TaskItem({ title, description, date, isCompleted, priority, userId, id,
         <p className='task-description'>{description}</p>
         <p className="date">{formatDate(date)}</p>
         <div className="task-footer">
-        {isCompleted ? (
-          <button
-            className="completed"
-            onClick={() => {
-              const task = {
-                id,
-                isCompleted: !isCompleted,
-                title: title,
-                description: description,
-                date: date,
-                priority:priority,
-                userId:userId,
-                requestType:'component',
-                order:order
-              };
-
-              updateTask(task);
-            }}
-          >
-            Completed
-          </button>
-        ) : (
-          <button
-            className="incomplete"
-            onClick={() => {
-              const task = {
-                id,
-                isCompleted: !isCompleted,
-                title: title,
-                description: description,
-                date: date,
-                priority:priority,
-                userId:userId,
-                requestType:'component',
-                order:order
-              };
-
-              updateTask(task);
-            }}
-          >
-            Incomplete
-          </button>
-        )}
+        <button
+            className= { isCompleted ? "completed" : "incomplete"}
+            onClick={() => { updateTaskStatus(id, !isCompleted); }}
+        >
+          { isCompleted ? "Completed" : "Incomplete"}
+        </button>
         <div>
           <button className="btn-edit"
             onClick={() => {

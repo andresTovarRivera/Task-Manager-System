@@ -9,6 +9,8 @@ namespace TaskSystem.Server.BusinessLayer.Interfaces
         public Task<GenericGetResponse<TaskData>> GetTaskById(int taskId, int userID);
         public Task<GenericResponse> InsertTask(TaskData newTaskData, int userID);
         public Task<_BaseModel> UpdateTask(TaskData updateTaskData, int userID);
+        public Task<_BaseModel> UpdateTaskStatus(UpdateTaskStatusRequest updateTaskData, int userID);
+        public Task<_BaseModel> UpdateTaskOrder(UpdateTaskOrderRequest updateTaskData, int userID);
         public Task<_BaseModel> DeleteTask(int taskId, int userId);
     }
 }

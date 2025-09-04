@@ -63,6 +63,34 @@ public class TaskManagerController(ILogger<TaskManagerController> log, ITaskMana
         return CreateResponse(await taskManagerBL.UpdateTask(updateTaskData, user.Id));
     }
 
+    [HttpPut]
+    [Authorize]
+    public async Task<IActionResult> UpdateTaskStatus([FromBody] UpdateTaskStatusRequest updateTaskData)
+    {
+        AuthenticateResponse? user = Request?.HttpContext?.Items["User"] as AuthenticateResponse;
+
+        if (user is null)
+        {
+            return CreateResponse(new Models.Base._BaseModel());
+        }
+
+        return CreateResponse(await taskManagerBL.UpdateTaskStatus(updateTaskData, user.Id));
+    }
+
+    [HttpPut]
+    [Authorize]
+    public async Task<IActionResult> UpdateTaskOrder([FromBody] UpdateTaskOrderRequest updateTaskData)
+    {
+        AuthenticateResponse? user = Request?.HttpContext?.Items["User"] as AuthenticateResponse;
+
+        if (user is null)
+        {
+            return CreateResponse(new Models.Base._BaseModel());
+        }
+
+        return CreateResponse(await taskManagerBL.UpdateTaskOrder(updateTaskData, user.Id));
+    }
+
     [HttpPost, Route("{id}")]
     [Authorize]
     public async Task<IActionResult> DeleteTask(int id)

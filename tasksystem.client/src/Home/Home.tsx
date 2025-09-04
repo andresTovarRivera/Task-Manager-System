@@ -67,13 +67,20 @@ function Home() {
   const handleDragEnd = (event: any) => {
     const { active, over }: any= event;
 
-    if (active.id !== over.id) {     
-      setFilterTasks((t :any) => {
-        const oldIndex = t.findIndex((c:any) => {return c.order == active.id;});       
-        const newIndex = t.findIndex((c:any) => {return c.order == over.id;});
+    if (active.id !== over.id) {
+      
+      const taskIndex :number = filteredtasks.findIndex((c:any) => {return c.order == active.id;})
+      const oldIndex = filteredtasks.findIndex((c:any) => {return c.order == active.id;});       
+      const newIndex = filteredtasks.findIndex((c:any) => {return c.order == over.id;});
 
-        return arrayMove(filteredtasks, oldIndex, newIndex);
-      });
+      if(taskIndex < 0){
+        return;
+      }
+
+      const taskMoved :any = filteredtasks[taskIndex];
+      dispatch(taskActions.UpdateTaskOrder({ taskId:taskMoved.id, oldOrder: oldIndex, newOrder: newIndex})); 
+      
+      setFilterTasks(arrayMove(filteredtasks, oldIndex, newIndex));
     }
   };
 
@@ -103,7 +110,6 @@ function Home() {
                     date={task.date}
                     isCompleted={task.isCompleted}
                     priority={task.priority}
-                    userId = {task.userId}
                     id={task.id}
                     order={task.order}
                   />

@@ -167,6 +167,115 @@ public class TaskManagerBL(ITaskManagerContext taskManagerContext, IValidateData
         };
     }
 
+    public async Task<_BaseModel> UpdateTaskStatus(UpdateTaskStatusRequest updateTaskData, int userID)
+    {
+        if (updateTaskData is null || updateTaskData.TaskId <= 0)
+        {
+            return new _BaseModel()
+            {
+                ErrorCode = 1,
+                ErrorMessage = "Invladid data"
+            };
+        }
+
+        var currentTaskData = await taskManagerContext.Tasks.FirstOrDefaultAsync(t => t.Id == updateTaskData.TaskId && t.UserId == userID);
+
+        if (currentTaskData is null)
+        {
+            return new GenericResponse()
+            {
+                ErrorCode = 2,
+                ErrorMessage = "Task not found"
+            };
+        }
+
+        currentTaskData.IsCompleted = updateTaskData.IsCompleted;
+
+        taskManagerContext.Tasks.Update(currentTaskData);
+        int row = await taskManagerContext.SaveChangesAsync();
+
+        if (row <= 0)
+        {
+            return new GenericResponse()
+            {
+                ErrorCode = 3,
+                ErrorMessage = "Error updating task status"
+            };
+        }
+
+        return new GenericResponse()
+        {
+            ErrorCode = 0,
+            ErrorMessage = "",
+            IsSuccessful = true
+        };
+    }
+
+    public async Task<_BaseModel> UpdateTaskOrder(UpdateTaskOrderRequest updateTaskData, int userID)
+    {
+        if (updateTaskData is null || updateTaskData.TaskId <= 0)
+        {
+            return new _BaseModel()
+            {
+                ErrorCode = 1,
+                ErrorMessage = "Invladid data"
+            };
+        }
+
+        if (updateTaskData.OldOrder <= 0 || updateTaskData.NewOrder <= 0)
+        {
+            return new _BaseModel()
+            {
+                ErrorCode = 2,
+                ErrorMessage = "Cannot updating task order"
+            };
+        }
+
+        List<TaskData> tasks = await taskManagerContext.Tasks.Where(t => t.UserId == userID).ToListAsync();
+
+        if (tasks is null || !tasks.Any())
+        {
+            return new GenericResponse()
+            {
+                ErrorCode = 3,
+                ErrorMessage = "No Tasks Found"
+            };
+        }
+
+
+        var currentTaskData = tasks.FirstOrDefault(t => t.Id == updateTaskData.TaskId && t.UserId == userID);
+
+        if (currentTaskData is null)
+        {
+            return new GenericResponse()
+            {
+                ErrorCode = 4,
+                ErrorMessage = "Task not found"
+            };
+        }
+
+        ReorganizeTasks(tasks, updateTaskData.TaskId, updateTaskData.OldOrder, updateTaskData.NewOrder);
+
+        taskManagerContext.Tasks.Update(currentTaskData);
+        int row = await taskManagerContext.SaveChangesAsync();
+
+        if (row <= 0)
+        {
+            return new GenericResponse()
+            {
+                ErrorCode = 5,
+                ErrorMessage = "Error updating task order"
+            };
+        }
+
+        return new GenericResponse()
+        {
+            ErrorCode = 0,
+            ErrorMessage = "",
+            IsSuccessful = true
+        };
+    }
+
     public async Task<_BaseModel> DeleteTask(int taskId, int userId)
     {
         var taskData = await taskManagerContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
@@ -213,5 +322,31 @@ public class TaskManagerBL(ITaskManagerContext taskManagerContext, IValidateData
         currentTaskData.Order = newTaskData.Order;
 
         return currentTaskData;
+    }
+
+    public static void ReorganizeTasks(List<TaskData> tasks, int id, int oldOrder, int newOrder)
+    {
+        int taskIndex = tasks.FindIndex(t => t.Id == id);
+        
+        if (newOrder < oldOrder)
+        {
+            tasks.ForEach((c) => {
+                if (c.Order >= newOrder && c.Order < oldOrder)
+                {
+                    c.Order = c.Order + 1;                    
+                }
+            });
+        }
+        else
+        {
+            tasks.ForEach((c) => {
+                if (c.Order > oldOrder && c.Order <= newOrder)
+                {
+                    c.Order = c.Order - 1;
+                }
+            });
+        }
+
+        tasks[taskIndex].Order = newOrder;
     }
 }
