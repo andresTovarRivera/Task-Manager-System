@@ -37,7 +37,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: parseInt(env.DEV_SERVER_PORT || '52093'),
+    port: parseInt(env.ASPNETCORE_HTTPS_PORT || '55239'),
     https: {
         key: fs.readFileSync(keyFilePath),
         cert: fs.readFileSync(certFilePath),

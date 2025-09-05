@@ -25,9 +25,8 @@ function createInitialState() {
 }
 
 function createExtraActions() {
-    // const target:string = import.meta.env.VITE_APP_API_URL;
-    const target:string = 'https://localhost:8080/api'
-    const baseUrl = `${target}/taskManager`;
+     const target:string = import.meta.env?.VITE_APP_API_URL ?? 'http://localhost:8080/';
+    const baseUrl = `${target}api/taskManager`;
 
     return {
         GetAllTasksByUser: GetAllTasksByUser(),
@@ -271,7 +270,11 @@ function createExtraReducers() {
                     }
 
                     if(response.isSuccessful){
-                                                                 
+                        const tasksDataUpdated = state.tasksData;
+                        state.userTasksNumber  = tasksDataUpdated.length;                   
+                        state.tasksData = tasksDataUpdated;
+                        state.completedTasks = tasksDataUpdated?.filter((t : any) => t.isCompleted === true);
+                        state.incompleteTasks = tasksDataUpdated?.filter((t :any) => t.isCompleted === false);                                      
                     }                      
                 })
                 .addCase(rejected, (action: any) => {

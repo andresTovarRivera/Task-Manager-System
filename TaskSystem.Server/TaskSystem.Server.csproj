@@ -8,7 +8,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <SpaRoot>..\tasksystem.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
-    <SpaProxyServerUrl>https://localhost:51011</SpaProxyServerUrl>
+    <SpaProxyServerUrl>https://localhost:55239</SpaProxyServerUrl>
   </PropertyGroup>
 
   <ItemGroup>
